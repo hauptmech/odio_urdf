@@ -1,0 +1,3 @@
+#!/bin/bash
+
+PYTHONPATH=$PYTHONPATH:../src coman/coman.py
