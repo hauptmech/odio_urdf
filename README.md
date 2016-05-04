@@ -1,3 +1,4 @@
+## What is it?
 
 Odio URDF allows one to build a data structure of similar form to URDF using python
 classes. This allows a natural integration into python code for calculation and
@@ -8,15 +9,19 @@ The structure can dump it's URDF XML equivalent at any time.
 Robot models can be built by in-place definition, or sequential construction, 
 which ever best suits the task.
 
+## But my model is a beautiful hierarchy of Xacro
+
+This is much more powerful and easier to use than xacro.
+
 There is some code in place to allow working with directly copied xacro based URDF's
 by processing xacro elements, including macro references embedded in strings. This help
 speed transcribing a xacro based model if you need to.
-
 
 `/test/coman/coman.py` provides a demo of odio_urdf in action and is a convesion of 
 [iit-coman-ros-pkg](https://github.com/EnricoMingo/iit-coman-ros-pkg) on github which
 makes moderate use of xacro.
 
+## So how do I use it?
 
 Each URDF element has a corresponding odio_urdf class of the same name in title case.
 
@@ -26,7 +31,7 @@ One may construct a robot in place, duplicating a URDF structure, if one wants.
 
 To duplicate the [tutorial urdf here](http://wiki.ros.org/urdf/Tutorials/Create%20your%20own%20urdf%20file), your python code would look like:
 
-```
+```python
 # If you have OCD and need a clean namespace, change to standard import
 from odio_urdf import * 
 
@@ -52,7 +57,7 @@ However, if you prefer, (or need), a sequential style, it works well. A bit of
 niceness is that the element name will be extracted from the python dictionary
 if you don't specify it explicitly.
 
-```
+```python
 my_robot = Robot()
 link1 = Link() #name 'link1' will be used unless link1.name is set 
 link2 = Link() 
@@ -77,12 +82,12 @@ standard, re-usable components. To facilitate this, there is a 'Group' class
 that is like Robot, but when included in an existing robot will be flattened.
 
 legs.py
-```
+```python
 left_leg = Group(Link(),Link(),Joint())
 ```
 
 robot.py
-```
+```python
 my_robot = Robot()
 
 import legs
@@ -93,7 +98,7 @@ my_robot(legs.left_leg)
 Finally, as a bit of syntactic sugar, one can pass the class name only to get
 a default instantiation. 
 
-```
+```python
 quick = Joint(Origin) #Adds a default origin element
 ```
 
@@ -101,7 +106,7 @@ As a reminder, for each URDF element and attribute, there is a corresponding
 odio_urdf class and attribute. Each child element is accessed list style. Each 
 attribute is accessed class member style.
 
-```
+```python
 grey =      Material(Color(rgba="0.5 0.5 0.5 1"))
 grey[0].rgba = "0.1 0.1 0.1 1"
 ```
@@ -113,7 +118,7 @@ a programming language for data description. The executable is the data.
 Here's a launch file for the iit-coman package with the original robot_description
 commented out and replaced with the odio_urdf equivalent.
 
-```
+```xml
 <launch>
      <arg name="gui" default="true" />
 
