@@ -18,7 +18,7 @@ Please see README.md for an overview.
 
 """
 import xml.etree.ElementTree as ET
-
+import copy
 import inspect
 
 def instantiate(subject):
@@ -69,9 +69,13 @@ class Element(list):
         
         self.attributes = set()
         instantiated = []
+        self.xmltext = "" 
 
         callers_local_vars = inspect.currentframe().f_back.f_back.f_locals.items()
- 
+        
+        if 'xmltext' in kwargs:
+            self.xmltext = copy.copy(kwargs['xmltext'])
+            del kwargs['xmltext'] 
         
         for arg in args:
             
@@ -128,6 +132,10 @@ class Element(list):
 
     def __call__(self,*args,**kwargs):
         
+        if 'xmltext' in kwargs:
+            self.xmltext = kwargs['xmltext']
+            del kwargs['xmltext'] 
+
         callers_local_vars = inspect.currentframe().f_back.f_locals.items()
 
         name = ""
@@ -181,11 +189,14 @@ class Element(list):
     def __repr__(self):
         return self.urdf(0)
 
+    special_names = {"transjoint": "joint"}
     def urdf(self,depth=0):
-        s = " "*depth + "<" + type(self).__name__.lower() + " "
+        name = type(self).__name__.lower()
+        if name in self.special_names: name = self.special_names[name]
+        s = " "*depth + "<" + name + " "
         if hasattr(self,'attributes'):
             for attr in self.attributes:
-                to_insert = getattr(self,attr)
+                to_insert = str(getattr(self,attr))
                 if isinstance(to_insert,tuple):
                     to_insert = str(to_insert).strip('(').strip(')').replace(',','')
                
@@ -194,14 +205,15 @@ class Element(list):
             for attr in set(type(self).required_attributes).difference(self.attributes):
                 s+= ' '+str(attr)+'="'+"UNNAMED_"+str(Element.element_counter)+'" '
                 Element.element_counter += 1
-        if len(self) == 0:
+        if len(self) == 0 and self.xmltext == "":
             s+= "/>\n"
         else:
             s+= ">\n"
                     
             for elt in self:
                 s += elt.urdf(depth+1)
-            
+            if self.xmltext != "":
+                s +=" "*(depth+1) + self.xmltext + "\n" 
             s +=" "*depth + "</" + type(self).__name__.lower() + ">\n"
         return s
         
@@ -246,7 +258,7 @@ class Xacroif(Element):
 class Group(Element):
     counter = 0
     required_elements = []
-    allowed_elements = ['Joint','Link']
+    allowed_elements = ['Joint','Link','Material','Transmission','Gazebo']
     required_attributes = []
     allowed_attributes = ['name']
     
@@ -256,7 +268,7 @@ class Group(Element):
 class Robot(Element):
     counter = 0
     required_elements = []
-    allowed_elements = ['Joint','Link','Material']
+    allowed_elements = ['Joint','Link','Material','Transmission','Gazebo']
     required_attributes = ['name']
     allowed_attributes = ['name']
     
@@ -296,11 +308,80 @@ class Joint(Element):
 class Link(Element):
     counter = 0
     required_elements = []
-    allowed_elements = ['Inertial','Visual','Collision']
+    allowed_elements = ['Inertial','Visual','Collision','Self_collision_checking']
     required_attributes = ['name']
     allowed_attributes = ['name'] 
     def __init__(self, *args, **kwargs):
         super().__init__(*args,**kwargs)
+
+class Transmission(Element):
+    counter = 0
+    required_elements = []
+    allowed_elements = ['Type','Transjoint','Actuator']
+    required_attributes = ['name']
+    allowed_attributes = ['name']  
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args,**kwargs)
+
+
+class Type(Element):
+    counter = 0
+    required_elements = []
+    allowed_elements = []
+    required_attributes = []
+    allowed_attributes = ['xmltext']  
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args,**kwargs)
+
+class Transjoint(Element):
+    counter = 0
+    required_elements = []
+    allowed_elements = ['Hardwareinterface']
+    required_attributes = ['name']
+    allowed_attributes = ['name']  
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args,**kwargs)
+
+class Hardwareinterface(Element):
+    counter = 0
+    required_elements = []
+    allowed_elements = []
+    required_attributes = []
+    allowed_attributes = ['xmltext']  
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args,**kwargs)
+
+class Mechanicalreduction(Element):
+    counter = 0
+    required_elements = []
+    allowed_elements = []
+    required_attributes = []
+    allowed_attributes = ['xmltext']  
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args,**kwargs)
+
+
+
+
+class Actuator(Element):
+    counter = 0
+    required_elements = []
+    allowed_elements = ['Mechanicalreduction','Hardwareinterface']
+    required_attributes = ['name']
+    allowed_attributes = ['name']  
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args,**kwargs)
+
+
+
+
+
 
 class Parent(Element):
     counter = 0
@@ -328,7 +409,15 @@ class Inertia(Element):
     required_attributes = []
     allowed_attributes = ['ixx','ixy','ixz','iyy','iyz','izz']  
     def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs)
+        if len(args) == 1 and isinstance(args[0],list):
+            if len(args[0]) == 6:
+                kwargs["ixx"]=str(args[0][0])
+                kwargs["ixy"]=str(args[0][1])
+                kwargs["ixz"]=str(args[0][2])
+                kwargs["iyy"]=str(args[0][3])
+                kwargs["iyz"]=str(args[0][4])
+                kwargs["izz"]=str(args[0][5])
+        super().__init__(**kwargs)
       
 class Visual(Element):
     required_elements = []
@@ -336,12 +425,11 @@ class Visual(Element):
     required_attributes = []
     allowed_attributes = []       
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args,**kwargs)
 
 class Geometry(Element):
     required_elements = []
-    allowed_elements = ['Box','Cylinder','Sphere','Mesh']
+    allowed_elements = ['Box','Cylinder','Sphere','Mesh','Capsule']
     required_attributes = []
     allowed_attributes = ['name']     
     
@@ -359,6 +447,15 @@ class Box(Element):
     def __init__(self, *args, **kwargs):
 
         super().__init__(*args,**kwargs)
+ 
+class Capsule(Element):
+    required_elements = []
+    allowed_elements = []
+    required_attributes = []
+    allowed_attributes = ['radius','length']  
+     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args,**kwargs)
         
 class Cylinder(Element):
     required_elements = []
@@ -367,7 +464,6 @@ class Cylinder(Element):
     allowed_attributes = ['radius','length']  
      
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args,**kwargs)
         
 class Sphere(Element):
@@ -393,7 +489,7 @@ class Mesh(Element):
 class Material(Element):
     required_elements = []
     allowed_elements = ['Color','Texture']
-    required_attributes = ['name']
+    required_attributes = []
     allowed_attributes = ['name']       
     
     def __init__(self, *args, **kwargs):
@@ -421,6 +517,15 @@ class Texture(Element):
         
 class Collision(Element):
     required_elements = []
+    allowed_elements = ['Origin','Geometry','Material']
+    required_attributes = []
+    allowed_attributes = ['name']  
+     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args,**kwargs)
+         
+class Self_collision_checking(Element):
+    required_elements = []
     allowed_elements = ['Origin','Geometry']
     required_attributes = []
     allowed_attributes = ['name']  
@@ -443,8 +548,16 @@ class Origin(Element):
     required_attributes = []
     allowed_attributes = ['xyz','rpy']       
     def __init__(self, *args, **kwargs):
+        if len(args) > 0 and isinstance(args[0],list):
+            if len(args[0]) == 6:
+                kwargs["xyz"]=str(args[0][0])+' '+str(args[0][1])+' '+str(args[0][2])
+                kwargs["rpy"]=str(args[0][3])+' '+str(args[0][4])+' '+str(args[0][5])
+                
+            if len(args[0]) == 3:
+                kwargs["xyz"]=str(args[0][0])+' '+str(args[0][1])+' '+str(args[0][2])
+            
 
-        super().__init__(*args,**kwargs)
+        super().__init__(**kwargs)
         
 class Axis(Element):
     required_elements = []
@@ -512,7 +625,128 @@ class Inertial(Element):
     def __init__(self, *args, **kwargs):
         
         super().__init__(*args,**kwargs)
+ 
+class Gazebo(Element):
+    counter = 0
+    required_elements = []
+    allowed_elements = ['Material','Gravity','Dampingfactor','Maxvel','Mindepth','Mu1','Mu2',
+        'Fdir1','Kp','Kd','Selfcollide','Maxcontacts','Laserretro','Plugin']
+    required_attributes = []
+    allowed_attributes = ['reference','xmltext']  
     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args,**kwargs)
+ 
+class Plugin(Element):
+    counter = 0
+    required_elements = []
+    allowed_elements = ['Robotnamespace']
+    required_attributes = []
+    allowed_attributes = ['name','filename']  
+
+ 
+class Robotnamespace(Element):
+    counter = 0
+    required_elements = []
+    allowed_elements = []
+    required_attributes = []
+    allowed_attributes = ['xmltext']  
+
+class Gravity(Element):
+    counter = 0
+    required_elements = []
+    allowed_elements = []
+    required_attributes = []
+    allowed_attributes = ['xmltext']  
+        
+class Laserretro(Element):
+    counter = 0
+    required_elements = []
+    allowed_elements = []
+    required_attributes = []
+    allowed_attributes = ['xmltext']  
+   
+
+class Maxcontacts(Element):
+    counter = 0
+    required_elements = []
+    allowed_elements = []
+    required_attributes = []
+    allowed_attributes = ['xmltext']  
+   
+
+class Selfcollide(Element):
+    counter = 0
+    required_elements = []
+    allowed_elements = []
+    required_attributes = []
+    allowed_attributes = ['xmltext']  
+   
+
+class Kd(Element):
+    counter = 0
+    required_elements = []
+    allowed_elements = []
+    required_attributes = []
+    allowed_attributes = ['xmltext']  
+   
+
+class Kp(Element):
+    counter = 0
+    required_elements = []
+    allowed_elements = []
+    required_attributes = []
+    allowed_attributes = ['xmltext']  
+   
+
+class Fdir1(Element):
+    counter = 0
+    required_elements = []
+    allowed_elements = []
+    required_attributes = []
+    allowed_attributes = ['xmltext']  
+   
+
+class Mu2(Element):
+    counter = 0
+    required_elements = []
+    allowed_elements = []
+    required_attributes = []
+    allowed_attributes = ['xmltext']  
+   
+ 
+class Dampingfactor(Element):
+    counter = 0
+    required_elements = []
+    allowed_elements = []
+    required_attributes = []
+    allowed_attributes = ['xmltext']  
+   
+ 
+class Maxvel(Element):
+    counter = 0
+    required_elements = []
+    allowed_elements = []
+    required_attributes = []
+    allowed_attributes = ['xmltext']  
+   
+ 
+class Mindepth(Element):
+    counter = 0
+    required_elements = []
+    allowed_elements = []
+    required_attributes = []
+    allowed_attributes = ['xmltext']  
+   
+ 
+class Mu1(Element):
+    counter = 0
+    required_elements = []
+    allowed_elements = []
+    required_attributes = []
+    allowed_attributes = ['xmltext']  
+   
+  
 ################## elements###########
 
 def dump_urdf(urdf_string):
@@ -529,11 +763,15 @@ def dump_urdf_contents(urdf_string):
     return s   
     
 def dump(root,depth=0):
+    special_names = {}
     s = ""
 
     name = root.tag    
     if (root.tag[0] == '{'):
         name = 'xacro'+root.tag[root.tag.find('}')+1:]
+
+    if name in special_names:
+        name = special_names[name]
     
     s += "\n"+ ' '*depth + name.capitalize() + '('
 
@@ -549,6 +787,9 @@ def dump(root,depth=0):
         
     for key,value in root.attrib.items():
         s+= space + key + '= "'+value+'",'
+    
+    if root.text.strip() != "":
+        s+= space + 'xmltext = "'+root.text+'",'
         
     if s[-1]==',':
         s = s[:-1]
@@ -574,7 +815,10 @@ if __name__ == "__main__":
         Collision,
         name="test"
         )
-    print(myRobot)
+    
+    print(Origin([2,3,4]))
+    print(Origin([7,8,6,7,5,4]))
+    print(Inertia([1,2,3,4,4,2]))
         
 
 
