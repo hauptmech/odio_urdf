@@ -17,9 +17,12 @@ There is some code in place to allow working with directly copied xacro based UR
 by processing xacro elements, including macro references embedded in strings. This help
 speed transcribing a xacro based model if you need to.
 
+
 `/test/coman/coman.py` provides a demo of odio_urdf in action and is a convesion of 
 [iit-coman-ros-pkg](https://github.com/EnricoMingo/iit-coman-ros-pkg) on github which
 makes moderate use of xacro.
+
+`/test/iiwa/iiwa7.urdf.py` is demo of the Kuka iiwa7 from the [data of iiwa_stack](https://github.com/SalvoVirga/iiwa_stack).
 
 ## So how do I use it?
 
