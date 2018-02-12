@@ -56,6 +56,8 @@ my_robot = Robot(
 print(my_robot) #Dump urdf to stdout
 ```
 
+(You can check it works before installing by running the code from the src folder. Copy the code to `src/test.py` and run it from that directory. `cd src; python test.py`)
+
 However, if you prefer, (or need), a sequential style, it works well. A bit of 
 niceness is that the element name will be extracted from the python dictionary
 if you don't specify it explicitly.
