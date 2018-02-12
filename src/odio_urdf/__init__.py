@@ -263,7 +263,7 @@ class Group(Element):
     allowed_attributes = ['name']
     
     def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs)	
+        super(Group, self).__init__(*args,**kwargs)	
 		
 class Robot(Element):
     counter = 0
@@ -277,7 +277,7 @@ class Robot(Element):
 #            kwargs['name'] = 'Robot'+str(Robot.counter)
 #            Robot.counter += 1
 
-        super().__init__(*args,**kwargs)
+        super(Robot, self).__init__(*args,**kwargs)
 
     def __str__(self):
         return '<?xml version="1.0"?>\n'+self.urdf(0)
@@ -302,7 +302,7 @@ class Joint(Element):
         if kwargs['type'] not in Joint_types:
             raise Exception('Joint type not correct')
 
-        super().__init__(*args,**kwargs)
+        super(Joint, self).__init__(*args,**kwargs)
 
      
 class Link(Element):
@@ -312,7 +312,7 @@ class Link(Element):
     required_attributes = ['name']
     allowed_attributes = ['name'] 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs)
+        super(Link, self).__init__(*args,**kwargs)
 
 class Transmission(Element):
     counter = 0
@@ -322,7 +322,7 @@ class Transmission(Element):
     allowed_attributes = ['name']  
     
     def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs)
+        super(Transmission, self).__init__(*args,**kwargs)
 
 
 class Type(Element):
@@ -333,7 +333,7 @@ class Type(Element):
     allowed_attributes = ['xmltext']  
     
     def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs)
+        super(Type, self).__init__(*args,**kwargs)
 
 class Transjoint(Element):
     counter = 0
@@ -343,7 +343,7 @@ class Transjoint(Element):
     allowed_attributes = ['name']  
     
     def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs)
+        super(Transjoint, self).__init__(*args,**kwargs)
 
 class Hardwareinterface(Element):
     counter = 0
@@ -353,7 +353,7 @@ class Hardwareinterface(Element):
     allowed_attributes = ['xmltext']  
     
     def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs)
+        super(Hardwareinterface, self).__init__(*args,**kwargs)
 
 class Mechanicalreduction(Element):
     counter = 0
@@ -363,7 +363,7 @@ class Mechanicalreduction(Element):
     allowed_attributes = ['xmltext']  
     
     def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs)
+        super(Mechanicalreduction, self).__init__(*args,**kwargs)
 
 
 
@@ -376,7 +376,7 @@ class Actuator(Element):
     allowed_attributes = ['name']  
     
     def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs)
+        super(Actuator, self).__init__(*args,**kwargs)
 
 
 
@@ -391,7 +391,7 @@ class Parent(Element):
     allowed_attributes = ['link']  
     
     def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs)
+        super(Parent, self).__init__(*args,**kwargs)
 
 class Child(Element):
     
@@ -401,7 +401,7 @@ class Child(Element):
     allowed_attributes = ['link'] 
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs)
+        super(Child, self).__init__(*args,**kwargs)
 
 class Inertia(Element):
     required_elements = []
@@ -417,7 +417,7 @@ class Inertia(Element):
                 kwargs["iyy"]=str(args[0][3])
                 kwargs["iyz"]=str(args[0][4])
                 kwargs["izz"]=str(args[0][5])
-        super().__init__(**kwargs)
+        super(Inertia, self).__init__(**kwargs)
       
 class Visual(Element):
     required_elements = []
@@ -425,7 +425,7 @@ class Visual(Element):
     required_attributes = []
     allowed_attributes = []       
     def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs)
+        super(Visual, self).__init__(*args,**kwargs)
 
 class Geometry(Element):
     required_elements = []
@@ -436,7 +436,7 @@ class Geometry(Element):
     def __init__(self, *args, **kwargs):
         if (len(args) != 1):
             raise Exception("Can only have one shape!")
-        super().__init__(*args,**kwargs)
+        super(Geometry, self).__init__(*args,**kwargs)
         
 class Box(Element):
     required_elements = []
@@ -446,7 +446,7 @@ class Box(Element):
      
     def __init__(self, *args, **kwargs):
 
-        super().__init__(*args,**kwargs)
+        super(Box, self).__init__(*args,**kwargs)
  
 class Capsule(Element):
     required_elements = []
@@ -455,7 +455,7 @@ class Capsule(Element):
     allowed_attributes = ['radius','length']  
      
     def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs)
+        super(Capsule, self).__init__(*args,**kwargs)
         
 class Cylinder(Element):
     required_elements = []
@@ -464,7 +464,7 @@ class Cylinder(Element):
     allowed_attributes = ['radius','length']  
      
     def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs)
+        super(Cylinder, self).__init__(*args,**kwargs)
         
 class Sphere(Element):
     required_elements = []
@@ -474,7 +474,7 @@ class Sphere(Element):
       
     def __init__(self, *args, **kwargs):
 
-        super().__init__(*args,**kwargs)
+        super(Sphere, self).__init__(*args,**kwargs)
         
 class Mesh(Element):
     required_elements = []
@@ -484,7 +484,7 @@ class Mesh(Element):
       
     def __init__(self, *args, **kwargs):
 
-        super().__init__(*args,**kwargs)  
+        super(Mesh, self).__init__(*args,**kwargs)  
 
 class Material(Element):
     required_elements = []
@@ -492,9 +492,9 @@ class Material(Element):
     required_attributes = []
     allowed_attributes = ['name']       
     
-    def __init__(self, *args, **kwargs):
+    def __init__(Material, *args, **kwargs):
 
-        super().__init__(*args,**kwargs)  
+        super(Element, self).__init__(*args,**kwargs)  
         
 class Color(Element):
     required_elements = []
@@ -503,7 +503,7 @@ class Color(Element):
     allowed_attributes = ['rgba']  
      
     def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs) 
+        super(Color, self).__init__(*args,**kwargs) 
 		
 class Texture(Element):
     required_elements = []
@@ -513,7 +513,7 @@ class Texture(Element):
     
     def __init__(self, *args, **kwargs):
 
-        super().__init__(*args,**kwargs)  
+        super(Texture, self).__init__(*args,**kwargs)  
         
 class Collision(Element):
     required_elements = []
@@ -522,7 +522,7 @@ class Collision(Element):
     allowed_attributes = ['name']  
      
     def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs)
+        super(Collision, self).__init__(*args,**kwargs)
          
 class Self_collision_checking(Element):
     required_elements = []
@@ -531,7 +531,7 @@ class Self_collision_checking(Element):
     allowed_attributes = ['name']  
      
     def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs)
+        super(Self_collision_checking, self).__init__(*args,**kwargs)
         
 class Mass(Element):
     required_elements = []
@@ -540,7 +540,7 @@ class Mass(Element):
     allowed_attributes = ['value'] 
      
     def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs)
+        super(Mass, self).__init__(*args,**kwargs)
      
 class Origin(Element):
     required_elements = []
@@ -557,7 +557,7 @@ class Origin(Element):
                 kwargs["xyz"]=str(args[0][0])+' '+str(args[0][1])+' '+str(args[0][2])
             
 
-        super().__init__(**kwargs)
+        super(Origin, self).__init__(**kwargs)
         
 class Axis(Element):
     required_elements = []
@@ -566,7 +566,7 @@ class Axis(Element):
     allowed_attributes = ['xyz']       
     def __init__(self, *args, **kwargs):
 
-        super().__init__(*args,**kwargs)
+        super(Axis, self).__init__(*args,**kwargs)
         
 class Calibration(Element):
     required_elements = []
@@ -575,7 +575,7 @@ class Calibration(Element):
     allowed_attributes = ['rising','falling']       
     def __init__(self, *args, **kwargs):
 
-        super().__init__(*args,**kwargs)
+        super(Calibration, self).__init__(*args,**kwargs)
         
 class Safety_controller(Element):
     required_elements = []
@@ -584,7 +584,7 @@ class Safety_controller(Element):
     allowed_attributes = ['soft_lower_limit','soft_upper_limit','k_position','k_velocity']       
     def __init__(self, *args, **kwargs):
 
-        super().__init__(*args,**kwargs)
+        super(Safety_controller, self).__init__(*args,**kwargs)
 
 class Limit(Element):
     required_elements = []
@@ -594,7 +594,7 @@ class Limit(Element):
     def __init__(self, *args, **kwargs):
         
             
-        super().__init__(*args,**kwargs)
+        super(Limit, self).__init__(*args,**kwargs)
         
 class Dynamics(Element):
     required_elements = []
@@ -603,7 +603,7 @@ class Dynamics(Element):
     allowed_attributes = ['damping','friction']      
     def __init__(self, *args, **kwargs):
             
-        super().__init__(*args,**kwargs)
+        super(Dynamics, self).__init__(*args,**kwargs)
                 
 class Mimic(Element):
     required_elements = []
@@ -614,7 +614,7 @@ class Mimic(Element):
         if 'joint' not in kwargs:
             raise Exception('Mimic must have "joint" attribute')
             
-        super().__init__(*args,**kwargs)
+        super(Mimic, self).__init__(*args,**kwargs)
         
 class Inertial(Element):
     required_elements = []
@@ -624,7 +624,7 @@ class Inertial(Element):
      
     def __init__(self, *args, **kwargs):
         
-        super().__init__(*args,**kwargs)
+        super(Inertial, self).__init__(*args,**kwargs)
  
 class Gazebo(Element):
     counter = 0
@@ -635,7 +635,7 @@ class Gazebo(Element):
     allowed_attributes = ['reference','xmltext']  
     
     def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs)
+        super(Gazebo, self).__init__(*args,**kwargs)
  
 class Plugin(Element):
     counter = 0
