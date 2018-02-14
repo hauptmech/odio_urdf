@@ -492,9 +492,8 @@ class Material(Element):
     required_attributes = []
     allowed_attributes = ['name']       
     
-    def __init__(Material, *args, **kwargs):
-
-        super(Element, self).__init__(*args,**kwargs)  
+    def __init__(self, *args, **kwargs):
+        super(Material, self).__init__(*args,**kwargs)  
         
 class Color(Element):
     required_elements = []
