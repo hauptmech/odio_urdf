@@ -45,8 +45,6 @@ ToDo:
         ixz= "0.0"
         ),
 
-    Parent(link="bla") -> Parent("bla")
-
 """
  
 def eval_macros(string, env):
@@ -72,63 +70,27 @@ class Element(list):
         self.xmltext = "" 
 
         callers_local_vars = inspect.currentframe().f_back.f_back.f_locals.items()
-        
-        if 'xmltext' in kwargs:
-            self.xmltext = copy.copy(kwargs['xmltext'])
-            del kwargs['xmltext'] 
-        
+               
+        # __call__() adds and sets all our attributes and elements
+        self(*args, **kwargs)
+
+        # Create defaults for any required elements that have not been created yet.
         for arg in args:
-            
-            if type(arg) is str:
-                setattr(self,'name',arg)
-                self.attributes.add('name')
-                
-            elif type(arg) is Group:
-                for elt in arg:
-                    self.append(elt)
-            else:
+            if type(arg) is not str and type(arg) is not Group:
                 if (type(arg) is type):
                     name = arg.__name__
                 else:
                     name = type(arg).__name__
-                    
-                    
-                if name in type(self).allowed_elements:
-                    new_child = instantiate(arg)
-                    self.append(new_child)
-                    instantiated.append(name)
-                    new_child.parent = self
-                    
-                    #If name is required and not there already, add it using the variable name
-                    if 'name' in type(new_child).required_attributes and not 'name' in new_child.attributes:
-                        #If we were a named variable, use it
-                        name_val_list = [(var_name,var_val) for var_name, var_val in callers_local_vars if var_val is arg]
-                        if len(name_val_list)>0:
-                            name_val = name_val_list[0][0]
-                            new_child.name = name_val
-                            new_child.attributes.add('name')
 
-                elif name in Element.xacro_tags:
-                    pass
-                   
-                else:
-                    raise Exception("Illegal element ["+name+']')
+                if name in type(self).allowed_elements:
+                    instantiated.append(name)
         
         for item in type(self).required_elements:
             if item not in instantiated:
                 new_child = instantiate(globals()[item])
                 self.append(new_child)
                 new_child.parent = self
-     
-        for key,value in kwargs.items():
-            if (key in type(self).allowed_attributes):
-                setattr(self,key,value)
-                self.attributes.add(key)
-            else:
-                raise Exception("Unknown attribute ["+key+']')
 
-
-        
 
     def __call__(self,*args,**kwargs):
         
@@ -139,30 +101,34 @@ class Element(list):
         callers_local_vars = inspect.currentframe().f_back.f_locals.items()
 
         name = ""
+        unlabeled = 0 # Count of unlabeled strings we have encountered so far
         for arg in args:
+            # myjoint("myname","mytype")
             if type(arg) is str:
-                setattr(self,'name',arg)
-                self.attributes.add('name')  
+                if unlabeled in range(len(type(self).allowed_attributes)):
+                    setattr(self,type(self).allowed_attributes[unlabeled],arg)
+                    self.attributes.add(type(self).allowed_attributes[unlabeled])
+                    unlabeled += 1
             elif type(arg) is Group:
                 for elt in arg:
                     self.append(elt)
             else:
                 if (type(arg) is type):
                     name = arg.__name__
-                
                 else:
                     name = type(arg).__name__
                     
                 if name in self.allowed_elements:
                     new_child = instantiate(arg)
                     self.append(new_child)
+                    new_child.parent = self
                 
                     #If name is required and not there already, add it using the variable name
                     if 'name' in type(new_child).required_attributes and not 'name' in new_child.attributes:
                         #If we were a named variable, use it
                         name_val_list = [(var_name,var_val) for var_name, var_val in callers_local_vars if var_val is arg]
                         if len(name_val_list)>0:
-                            name_val = name_val_list[-1][0]
+                            name_val = name_val_list[-1][0] #Use most recent label
                             new_child.name = name_val
                             new_child.attributes.add('name')
 
@@ -174,7 +140,13 @@ class Element(list):
             
             
         for key,value in kwargs.items():
-            if (key in attributes):
+            if (key in type(self).allowed_attributes):
+                #Convert raw numbers and number lists to strings
+                if isinstance(value,int) or isinstance(value,float):
+                    value = str(value)
+                elif isinstance(value,tuple) or isinstance(value,list):
+                    value = " ".join([str(x) for x in value])
+
                 setattr(self,key,value)
                 self.attributes.add(key)
             else:
