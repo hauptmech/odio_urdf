@@ -280,7 +280,7 @@ class Joint(Element):
 class Link(Element):
     counter = 0
     required_elements = []
-    allowed_elements = ['Inertial','Visual','Collision','Self_collision_checking']
+    allowed_elements = ['Inertial','Visual','Collision','Self_collision_checking', 'Contact']
     required_attributes = ['name']
     allowed_attributes = ['name'] 
     def __init__(self, *args, **kwargs):
@@ -717,7 +717,52 @@ class Mu1(Element):
     required_attributes = []
     allowed_attributes = ['xmltext']  
    
-  
+class Contact(Element):
+    """Bullet3 element.
+    """
+    required_elements = []
+    allowed_elements = ['Stiffness', 'Damping', 'Lateral_Friction']
+    required_attributes = []
+    allowed_attributes = []
+
+    def __init__(self, *args, **kwargs):
+        super(Contact, self).__init__(*args, **kwargs)
+
+
+class Stiffness(Element):
+    """Bullet3 element.
+    """
+    required_elements = []
+    allowed_elements = []
+    required_attributes = []
+    allowed_attributes = ['value']
+
+    def __init__(self, *args, **kwargs):
+        super(Stiffness, self).__init__(*args, **kwargs)
+
+
+class Damping(Element):
+    """Bullet3 element.
+    """
+    required_elements = []
+    allowed_elements = []
+    required_attributes = []
+    allowed_attributes = ['value']
+
+    def __init__(self, *args, **kwargs):
+        super(Damping, self).__init__(*args, **kwargs)
+
+
+class Lateral_Friction(Element):
+    """Bullet3 element.
+    """
+    required_elements = []
+    allowed_elements = []
+    required_attributes = []
+    allowed_attributes = ['value']
+
+    def __init__(self, *args, **kwargs):
+        super(Lateral_Friction, self).__init__(*args, **kwargs)
 ################## elements###########
 
 def dump_urdf(urdf_string):
