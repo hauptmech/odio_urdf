@@ -9,6 +9,8 @@ The structure can dump it's URDF XML equivalent at any time.
 Robot models can be built by in-place definition, or sequential construction, 
 which ever best suits the task.
 
+> odio_urdf depends on catkin_pkg, which needs to be manually installed if you want to use it on a non ROS environment. `pip install catkin_pkg`
+
 ## But my model is a beautiful hierarchy of Xacro
 
 This is much more powerful and easier to use than xacro.
