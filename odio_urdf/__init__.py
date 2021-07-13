@@ -477,7 +477,7 @@ def xml_to_odio(root,depth=0):
     s += "\n"+ ' '*depth + name.capitalize() + '('
 
     for tag in root:
-        s+= dump(tag,depth+1) + ','
+        s+= xml_to_odio(tag,depth+1) + ','
 
     if len(root.attrib.items()) < 3:
         space = ""
@@ -489,7 +489,7 @@ def xml_to_odio(root,depth=0):
     for key,value in root.attrib.items():
         s+= space + key + '= "'+value+'",'
 
-    if root.text.strip() != "":
+    if root.text and root.text.strip() != "":
         s+= space + 'xmltext = "'+root.text+'",'
 
     if s[-1]==',':
