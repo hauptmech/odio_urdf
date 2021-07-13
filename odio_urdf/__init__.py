@@ -263,7 +263,7 @@ class Robot(NamedElement):
     allowed_elements = ['Joint','Link','Material','Transmission','Gazebo']
 
     def urdf(self, depth=0):
-        return '<?xml version="1.0"?>\n'+self.urdf(0)
+        return '<?xml version="1.0"?>\n'+super(Robot,self).urdf(0)
 
 class Joint(NamedElement):
     required_elements = ['Parent','Child']
@@ -502,47 +502,8 @@ def xml_to_odio(root,depth=0):
         #s+= '\n'+' '*depth +')'
     return s
 
-
-
-
-def test():
-    myRobot = Link(
-        Inertial(
-            Origin(xyz=(0,0,0.5), rpy=(0,0,0)),
-            Mass(value=1),
-            Inertia(ixx=100, ixy=0),
-        ),
-        Visual,
-        Collision,
-        name="test"
-        )
-
-    print(myRobot)
-    print(Origin([2,3,4]))
-    print(Origin([7,8,6,7,5,4]))
-    print(Inertia([1,2,3,4,4,2]))
-
-
-
 if __name__ == "__main__":
-
-    import sys
-
-    if len(sys.argv) != 2:
-        print("""
-        Usage: odio_urdf xacro.xml
-
-
-        Partially converts the file on the command line from xacro to python as an aid
-        to converting existing xacro based models to odio_urdf code.
-
-
-
-        """)
-        exit(0)
-
-    inf = open(sys.argv[1])
-    print(urdf_to_odio(inf.read()))
+    pass
 
 
 
