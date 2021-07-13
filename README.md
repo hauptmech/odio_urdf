@@ -153,6 +153,28 @@ t="screen" >
 
 ### I want to use 3rd party xacro files
 
+odio_urdf elements can be passed the xml output from xacro via `xacro_xml`, and/or hand crafted xml via `xmltext`.
+
+```python
+# source all necessary ros setup.* environments before running this code
+from odio_urdf import *
+import subprocess
+
+# Start with a rotating base
+my_robot = Robot("panda_with_a_twist",
+                Link("swivel_base"),
+                Joint("swivel_joint", Parent("swivel_base"), Child("panda_link0"), type="continuous"),
+)
+
+# Use xacro to get the franka panda arm
+res = subprocess.run(['rosrun', 'xacro', 'xacro', 'panda_arm.urdf.xacro'], capture_output=True)
+
+my_robot(xacro_xml=res.stdout)
+
+print(my_robot)
+
+```
+
 ---
 This is a work in progress with a few rough edges. Please file issues if you see 
 an opportunity for improvement. (Or even better, pull requests)
