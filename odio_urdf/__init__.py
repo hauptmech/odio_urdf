@@ -39,7 +39,7 @@ class ElementMeta(type):
             required_elements=[],
             allowed_elements=[],
             required_attributes=[],
-            arg_attributes=[],
+            allowed_attributes=[],
         )
 
     def __new__(cls, name, bases, clsdict):
@@ -54,7 +54,7 @@ class ElementMeta(type):
 
 class NamedElementMeta(ElementMeta):
     """ Many elements have 'name' as a required attribute """
-    _defaults_ = dict(ElementMeta._defaults_, required_attributes=["name"], arg_attributes=["name"])
+    _defaults_ = dict(ElementMeta._defaults_, required_attributes=["name"], allowed_attributes=["name"])
 
 
 def instantiate(subject):
@@ -76,7 +76,7 @@ class Element(list):
         required_elements: If any sub-element in this list is not present, it generates an error on xml output
         allowed_elements: If a sub-element NOT in this list is provided, it generates an error
         required_attributes: If any attribute in this list is not provided, it will be auto-generated
-        arg_attributes: Unnamed args will be assigned to these attributes sequentially.
+        allowed_attributes: Unnamed args will be assigned to these attributes sequentially.
     """
     element_counter = 0
     string_macros = {}
@@ -156,9 +156,9 @@ class Element(list):
         for arg in args:
             # myjoint("myname","mytype")
             if type(arg) is str:
-                if unlabeled in range(len(type(self).arg_attributes)):
-                    setattr(self,type(self).arg_attributes[unlabeled],arg)
-                    self.attributes.add(type(self).arg_attributes[unlabeled])
+                if unlabeled in range(len(type(self).allowed_attributes)):
+                    setattr(self,type(self).allowed_attributes[unlabeled],arg)
+                    self.attributes.add(type(self).allowed_attributes[unlabeled])
                     unlabeled += 1
             elif type(arg) is Group:
                 for elt in arg:
@@ -189,9 +189,8 @@ class Element(list):
                 else:
                     raise Exception("Illegal element ["+name+']')
 
-
         for key,value in kwargs.items():
-            if (key in type(self).arg_attributes):
+            if (key in type(self).allowed_attributes):
                 #Convert raw numbers and number lists to strings
                 if isinstance(value,int) or isinstance(value,float):
                     value = str(value)
@@ -201,7 +200,7 @@ class Element(list):
                 setattr(self,key,value)
                 self.attributes.add(key)
             else:
-                raise Exception("Unknown attribute ["+key+']')
+                raise Exception("Attribute ["+key+"] is not in allowed_attributes list of "+str(type(self)))
         return self
 
     def __str__(self):
@@ -243,7 +242,8 @@ class NamedElement(Element):
     pass
 ############# elements #############
 
-class Xacroinclude(Element):pass
+class Xacroinclude(Element):
+    allowed_attributes = ['filename']
 class Xacrounless(Element):pass
 class Xacroif(Element):pass
 class Xacroproperty(Element):
@@ -255,7 +255,7 @@ class Xacroproperty(Element):
 class Group(Element):
     """ A group of <Robot> top level elements that will be appended to the Robot() that owns this group"""
     allowed_elements = ['Joint','Link','Material','Transmission','Gazebo']
-    arg_attributes = ['name']
+    allowed_attributes = ['name']
 
 
 class Robot(NamedElement):
@@ -265,11 +265,11 @@ class Robot(NamedElement):
     def urdf(self, depth=0):
         return '<?xml version="1.0"?>\n'+super(Robot,self).urdf(0)
 
-class Joint(NamedElement):
+class Joint(Element):
     required_elements = ['Parent','Child']
     allowed_elements = ['Parent','Child','Origin','Inertial','Visual','Collision','Axis','Calibration','Dynamics','Limit','Mimic','Safety_controller']
-    required_attributes = ['type']
-    arg_attributes = ['type']
+    required_attributes = ['name','type']
+    allowed_attributes = ['name','type']
 
     def __init__(self, *args, **kwargs):
 
@@ -303,14 +303,14 @@ class Actuator(NamedElement):
 
 class Parent(Element):
     required_attributes = ['link']
-    arg_attributes = ['link']
+    allowed_attributes = ['link']
 
 class Child(Element):
     required_attributes = ['link']
-    arg_attributes = ['link']
+    allowed_attributes = ['link']
 
 class Inertia(Element):
-    arg_attributes = ['ixx','ixy','ixz','iyy','iyz','izz']
+    allowed_attributes = ['ixx','ixy','ixz','iyy','iyz','izz']
     def __init__(self, *args, **kwargs):
         if len(args) == 1 and isinstance(args[0],list):
             if len(args[0]) == 6:
@@ -327,7 +327,7 @@ class Visual(Element):
 
 class Geometry(Element):
     allowed_elements = ['Box','Cylinder','Sphere','Mesh','Capsule']
-    arg_attributes = ['name']
+    allowed_attributes = ['name']
 
     def __init__(self, *args, **kwargs):
         if (len(args) != 1):
@@ -335,43 +335,43 @@ class Geometry(Element):
         super(Geometry, self).__init__(*args,**kwargs)
 
 class Box(Element):
-    arg_attributes = ['size']
+    allowed_attributes = ['size']
 
 class Capsule(Element):
-    arg_attributes = ['radius','length']
+    allowed_attributes = ['radius','length']
 
 class Cylinder(Element):
-    arg_attributes = ['radius','length']
+    allowed_attributes = ['radius','length']
 
 class Sphere(Element):
-    arg_attributes = ['radius']
+    allowed_attributes = ['radius']
 
 class Mesh(Element):
-    arg_attributes = ['filename','scale']
+    allowed_attributes = ['filename','scale']
 
 class Material(Element):
     allowed_elements = ['Color','Texture']
-    arg_attributes = ['name']
+    allowed_attributes = ['name']
 
 class Color(Element):
-    arg_attributes = ['rgba']
+    allowed_attributes = ['rgba']
 
 class Texture(Element):
-    arg_attributes = ['filename']
+    allowed_attributes = ['filename']
 
 class Collision(Element):
     allowed_elements = ['Origin','Geometry','Material']
-    arg_attributes = ['name']
+    allowed_attributes = ['name']
 
 class Self_collision_checking(Element):
     allowed_elements = ['Origin','Geometry']
-    arg_attributes = ['name']
+    allowed_attributes = ['name']
 
 class Mass(Element):
-    arg_attributes = ['value']
+    allowed_attributes = ['value']
 
 class Origin(Element):
-    arg_attributes = ['xyz','rpy']
+    allowed_attributes = ['xyz','rpy']
     def __init__(self, *args, **kwargs):
         if len(args) > 0 and isinstance(args[0],list):
             if len(args[0]) == 6:
@@ -384,23 +384,23 @@ class Origin(Element):
         super(Origin, self).__init__(**kwargs)
 
 class Axis(Element):
-    arg_attributes = ['xyz']
+    allowed_attributes = ['xyz']
 
 class Calibration(Element):
-    arg_attributes = ['rising','falling']
+    allowed_attributes = ['rising','falling']
 
 class Safety_controller(Element):
-    arg_attributes = ['soft_lower_limit','soft_upper_limit','k_position','k_velocity']
+    allowed_attributes = ['soft_lower_limit','soft_upper_limit','k_position','k_velocity']
 
 class Limit(Element):
     required_attributes = ['effort','velocity']
-    arg_attributes = ['lower','upper','effort','velocity']
+    allowed_attributes = ['lower','upper','effort','velocity']
 
 class Dynamics(Element):
-    arg_attributes = ['damping','friction']
+    allowed_attributes = ['damping','friction']
 
 class Mimic(Element):
-    arg_attributes = ['joint','multiplier','offset']
+    allowed_attributes = ['joint','multiplier','offset']
     def __init__(self, *args, **kwargs):
         if 'joint' not in kwargs:
             raise Exception('Mimic must have "joint" attribute')
@@ -412,11 +412,11 @@ class Inertial(Element):
 class Gazebo(Element):
     allowed_elements = ['Material','Gravity','Dampingfactor','Maxvel','Mindepth','Mu1','Mu2',
         'Fdir1','Kp','Kd','Selfcollide','Maxcontacts','Laserretro','Plugin']
-    arg_attributes = ['reference','xmltext']
+    allowed_attributes = ['reference','xmltext']
 
 class Plugin(Element):
     allowed_elements = ['Robotnamespace']
-    arg_attributes = ['name','filename']
+    allowed_attributes = ['name','filename']
 
 class Robotnamespace(Element): pass
 class Gravity(Element): pass
@@ -438,15 +438,15 @@ class Contact(Element):
 
 class Stiffness(Element):
     """Bullet3 element."""
-    arg_attributes = ['value']
+    allowed_attributes = ['value']
 
 class Damping(Element):
     """Bullet3 element."""
-    arg_attributes = ['value']
+    allowed_attributes = ['value']
 
 class Lateral_Friction(Element):
     """Bullet3 element."""
-    arg_attributes = ['value']
+    allowed_attributes = ['value']
 
 ################## elements###########
 
