@@ -175,6 +175,12 @@ print(my_robot)
 
 ```
 
+### Extending odio_urdf with new elements
+
+It's easy to add new elements and monkey patch the existing ones in an ad-hoc manner.
+
+See `tests/new_elements_how_to.py`
+
 ---
 This is a work in progress with a few rough edges. Please file issues if you see 
 an opportunity for improvement. (Or even better, pull requests)
