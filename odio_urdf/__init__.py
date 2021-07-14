@@ -54,7 +54,7 @@ class ElementMeta(type):
 
 class NamedElementMeta(ElementMeta):
     """ Many elements have 'name' as a required attribute """
-    _defaults_ = dict(ElementMeta._defaults_, required_attributes=["name"], allowed_attributes=["name"])
+    _defaults_ = dict(ElementMeta._defaults_, required_attributes=["name"])
 
 
 def instantiate(subject):
@@ -73,10 +73,10 @@ class Element(list):
         All element classes have class attributes that define what sub elements and xml attributes are
         allowed or required.
 
-        required_elements: If any sub-element in this list is not present, it generates an error on xml output
-        allowed_elements: If a sub-element NOT in this list is provided, it generates an error
-        required_attributes: If any attribute in this list is not provided, it will be auto-generated
-        allowed_attributes: Unnamed args will be assigned to these attributes sequentially.
+        required_elements: xml sub-elments that MUST be present 
+        allowed_elements: xml sub-elements that MAY be present
+        required_attributes: xml attributes that MUST be present
+        allowed_attributes: xml attributes that MAY be present
     """
     element_counter = 0
     string_macros = {}
@@ -270,9 +270,8 @@ class Robot(NamedElement):
 
 class Joint(Element):
     required_elements = ['Parent','Child']
-    allowed_elements = ['Parent','Child','Origin','Inertial','Visual','Collision','Axis','Calibration','Dynamics','Limit','Mimic','Safety_controller']
+    allowed_elements = ['Origin','Inertial','Visual','Collision','Axis','Calibration','Dynamics','Limit','Mimic','Safety_controller']
     required_attributes = ['name','type']
-    allowed_attributes = ['name','type']
 
     def __init__(self, *args, **kwargs):
 
@@ -307,11 +306,9 @@ class Actuator(NamedElement):
 
 class Parent(Element):
     required_attributes = ['link']
-    allowed_attributes = ['link']
 
 class Child(Element):
     required_attributes = ['link']
-    allowed_attributes = ['link']
 
 class Inertia(Element):
     allowed_attributes = ['ixx','ixy','ixz','iyy','iyz','izz']
@@ -398,7 +395,7 @@ class Safety_controller(Element):
 
 class Limit(Element):
     required_attributes = ['effort','velocity']
-    allowed_attributes = ['lower','upper','effort','velocity']
+    allowed_attributes = ['lower','upper']
 
 class Dynamics(Element):
     allowed_attributes = ['damping','friction']
