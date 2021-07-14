@@ -105,7 +105,8 @@ class Element(list):
                 else:
                     name = type(arg).__name__
 
-                if name in type(self).allowed_elements:
+                allowed_elements = type(self).allowed_elements + type(self).required_elements
+                if name in allowed_elements:
                     instantiated.append(name)
 
         for item in type(self).required_elements:
@@ -157,9 +158,10 @@ class Element(list):
         for arg in args:
             # myjoint("myname","mytype")
             if type(arg) is str:
-                if unlabeled in range(len(type(self).allowed_attributes)):
-                    setattr(self,type(self).allowed_attributes[unlabeled],arg)
-                    self.attributes.add(type(self).allowed_attributes[unlabeled])
+                allowed_attributes = type(self).required_attributes + type(self).allowed_attributes
+                if unlabeled in range(len(allowed_attributes)):
+                    setattr(self,allowed_attributes[unlabeled],arg)
+                    self.attributes.add(allowed_attributes[unlabeled])
                     unlabeled += 1
             elif type(arg) is Group:
                 for elt in arg:
@@ -170,7 +172,7 @@ class Element(list):
                 else:
                     name = type(arg).__name__
 
-                if name in self.allowed_elements:
+                if name in self.required_elements + self.allowed_elements:
                     new_child = instantiate(arg)
                     self.append(new_child)
                     new_child.parent = self
@@ -191,7 +193,8 @@ class Element(list):
                     raise Exception("Illegal element ["+name+']')
 
         for key,value in kwargs.items():
-            if (key in type(self).allowed_attributes):
+            allowed_attributes = type(self).required_attributes + type(self).allowed_attributes
+            if key in allowed_attributes:
                 #Convert raw numbers and number lists to strings
                 if isinstance(value,int) or isinstance(value,float):
                     value = str(value)
