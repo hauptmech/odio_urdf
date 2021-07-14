@@ -81,6 +81,7 @@ class Element(list):
     element_counter = 0
     string_macros = {}
     xacro_tags = ['Xacroproperty','Xacroinclude','Xacroif','Xacrounless']
+    element_name = None
 
     def __init__(self,*args,**kwargs):
 
@@ -209,10 +210,9 @@ class Element(list):
     def __repr__(self):
         return self.urdf()
 
-    special_names = {"transjoint": "joint"}
     def urdf(self,depth=0):
         name = type(self).__name__.lower()
-        if name in self.special_names: name = self.special_names[name]
+        if self.element_name: name = self.element_name
         s = " "*depth + "<" + name + " "
         if hasattr(self,'attributes'):
             for attr in self.attributes:
@@ -293,6 +293,7 @@ class Type(Element): pass
 
 class Transjoint(NamedElement):
     allowed_elements = ['Hardwareinterface']
+    element_name = "joint"
 
 class Hardwareinterface(Element): pass
 
