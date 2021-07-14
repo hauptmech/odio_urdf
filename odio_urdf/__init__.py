@@ -57,13 +57,28 @@ class NamedElementMeta(ElementMeta):
     _defaults_ = dict(ElementMeta._defaults_, required_attributes=["name"])
 
 
-def instantiate(subject):
+def instantiate_if_class(subject):
     """ If subject is a type instead of an instance, instantiate it"""
     if type(subject) in [type, ElementMeta, NamedElementMeta]:
         ret = globals()[subject.__name__]()
     else:
         ret = subject
     return ret
+
+def classname( obj ):
+    """ Return class name for instance or class object """
+    obj_type = type(obj)
+    if obj_type in [type, ElementMeta, NamedElementMeta]:
+        return obj.__name__
+    else:
+        return obj_type.__name__
+
+def literal_as_str( literal ):
+    """ Returns value literals as a str and tuple/lists as a space separated str """
+    if isinstance(literal,int) or isinstance(literal,float) or isinstance(literal, str):
+        return str(literal)
+    elif isinstance(literal,tuple) or isinstance(literal,list):
+        return " ".join([str(x) for x in literal])
 
 @six.add_metaclass(ElementMeta)
 class Element(list):
@@ -86,7 +101,7 @@ class Element(list):
     def __init__(self,*args,**kwargs):
 
         self.attributes = set()
-        instantiated = []
+        self._instantiated = {}
         self.xmltext = ""
 
         up_frame = inspect.currentframe().f_back
@@ -98,20 +113,9 @@ class Element(list):
         self._populate_element_(*args, **kwargs)
 
         # Create defaults for any required elements that have not been created yet.
-        for arg in args:
-            if type(arg) is not str and type(arg) is not Group:
-                if type(arg) in [type,ElementMeta,NamedElementMeta]:
-                    name = arg.__name__
-                else:
-                    name = type(arg).__name__
-
-                allowed_elements = type(self).allowed_elements + type(self).required_elements
-                if name in allowed_elements:
-                    instantiated.append(name)
-
         for item in type(self).required_elements:
-            if item not in instantiated:
-                new_child = instantiate(globals()[item])
+            if item not in self._instantiated:
+                new_child = instantiate_if_class(globals()[item])
                 self.append(new_child)
                 new_child.parent = self
 
@@ -153,29 +157,29 @@ class Element(list):
 
         callers_local_vars = inspect.currentframe().f_back.f_locals.items()
 
+        allowed_attributes = type(self).required_attributes + type(self).allowed_attributes
         name = ""
         unlabeled = 0 # Count of unlabeled strings we have encountered so far
+        allowed_unlabeled = len(allowed_attributes)
         for arg in args:
-            # myjoint("myname","mytype")
-            if type(arg) is str:
-                allowed_attributes = type(self).required_attributes + type(self).allowed_attributes
-                if unlabeled in range(len(allowed_attributes)):
-                    setattr(self,allowed_attributes[unlabeled],arg)
+            arg_type = type(arg)
+            if arg_type in [str, float, int, tuple, list]:
+                if unlabeled < allowed_unlabeled:
+                    setattr(self, allowed_attributes[unlabeled], literal_as_str(arg))
                     self.attributes.add(allowed_attributes[unlabeled])
                     unlabeled += 1
-            elif type(arg) is Group:
+            elif arg_type is Group:
                 for elt in arg:
                     self.append(elt)
             else:
-                if type(arg) in [type,ElementMeta,NamedElementMeta]:
-                    name = arg.__name__
-                else:
-                    name = type(arg).__name__
+                name = classname(arg)
 
                 if name in self.required_elements + self.allowed_elements:
-                    new_child = instantiate(arg)
+                    new_child = instantiate_if_class(arg)
                     self.append(new_child)
                     new_child.parent = self
+
+                    self._instantiated[name] = None # Keep track of Elements we instantiate
 
                     #If name is required and not there already, add it using the variable name
                     if 'name' in type(new_child).required_attributes and not 'name' in new_child.attributes:
@@ -193,15 +197,8 @@ class Element(list):
                     raise Exception("Illegal element ["+name+']')
 
         for key,value in kwargs.items():
-            allowed_attributes = type(self).required_attributes + type(self).allowed_attributes
             if key in allowed_attributes:
-                #Convert raw numbers and number lists to strings
-                if isinstance(value,int) or isinstance(value,float):
-                    value = str(value)
-                elif isinstance(value,tuple) or isinstance(value,list):
-                    value = " ".join([str(x) for x in value])
-
-                setattr(self,key,value)
+                setattr(self, key, literal_as_str(value))
                 self.attributes.add(key)
             else:
                 raise Exception("Attribute ["+key+"] is not in allowed_attributes list of "+str(type(self)))
@@ -321,7 +318,8 @@ class Inertia(Element):
                 kwargs["iyy"]=str(args[0][3])
                 kwargs["iyz"]=str(args[0][4])
                 kwargs["izz"]=str(args[0][5])
-        super(Inertia, self).__init__(**kwargs)
+                del args[0]
+        super(Inertia, self).__init__(*args,**kwargs)
 
 class Visual(Element):
     allowed_elements = ['Origin','Geometry','Material']
@@ -378,11 +376,9 @@ class Origin(Element):
             if len(args[0]) == 6:
                 kwargs["xyz"]=str(args[0][0])+' '+str(args[0][1])+' '+str(args[0][2])
                 kwargs["rpy"]=str(args[0][3])+' '+str(args[0][4])+' '+str(args[0][5])
+                del args[0]
 
-            if len(args[0]) == 3:
-                kwargs["xyz"]=str(args[0][0])+' '+str(args[0][1])+' '+str(args[0][2])
-
-        super(Origin, self).__init__(**kwargs)
+        super(Origin, self).__init__(*args,**kwargs)
 
 class Axis(Element):
     allowed_attributes = ['xyz']
