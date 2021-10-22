@@ -152,7 +152,11 @@ class Element(list):
         if 'xacro_xml' in kwargs:
             xacroroot = ET.fromstring(kwargs['xacro_xml'])   # The root shoud be <Robot/>
             for child in xacroroot:
-                self.xmltext += ET.tostring(child,encoding='unicode') # Add the xml to our <Robot>
+                 # Add the xml to our <Robot>
+                if sys.version_info[0] < 3:
+                    self.xmltext += ET.tostring(child)
+                else:
+                    self.xmltext += ET.tostring(child, encoding=unicode)
             del kwargs['xacro_xml']
 
         callers_local_vars = inspect.currentframe().f_back.f_locals.items()
