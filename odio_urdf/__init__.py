@@ -308,7 +308,16 @@ class Actuator(NamedElement):
 class Parent(Element):
     required_attributes = ['link']
 
-class Child(Element):
+    def __init__(self, *args, **kwargs):
+        """ If Link type passed in, extract name string """
+        args = [arg for arg in args] 
+        for i,arg in enumerate(args):
+            if isinstance(arg, Link):
+                args[i] = arg.name
+
+        super(Parent, self).__init__(*args,**kwargs)
+
+class Child(Parent):
     required_attributes = ['link']
 
 class Inertia(Element):
