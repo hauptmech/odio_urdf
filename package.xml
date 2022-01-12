@@ -1,10 +1,12 @@
 <?xml version="1.0"?>
 <package>
   <name>odio_urdf</name>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
   <description>The odio_urdf package</description>
   <maintainer email="hauptmech@gmail.com">Hauptmech</maintainer>
   <license>MIT</license>
+
+  <url type="repository">https://github.com/hauptmech/odio_urdf</url>
 
   <buildtool_depend>catkin</buildtool_depend>
 
