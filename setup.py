@@ -1,4 +1,7 @@
-from distutils.core import setup
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 import xml.etree.ElementTree as ET
 
 pkg_info = ET.parse("package.xml")
