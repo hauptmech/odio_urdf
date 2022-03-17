@@ -21,6 +21,7 @@ import six
 import xml.etree.ElementTree as ET
 import copy
 import inspect
+import sys
 
 
 def eval_macros(string, env):
@@ -156,7 +157,7 @@ class Element(list):
                 if sys.version_info[0] < 3:
                     self.xmltext += ET.tostring(child)
                 else:
-                    self.xmltext += ET.tostring(child, encoding=unicode)
+                    self.xmltext += ET.tostring(child, encoding='unicode')
             del kwargs['xacro_xml']
 
         callers_local_vars = inspect.currentframe().f_back.f_locals.items()
