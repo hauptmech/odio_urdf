@@ -176,6 +176,8 @@ class Element(list):
             elif arg_type is Group:
                 for elt in arg:
                     self.append(elt)
+                if hasattr(arg,'xmltext'):
+                    self.xmltext += arg.xmltext
             else:
                 name = classname(arg)
 
