@@ -294,8 +294,10 @@ class Link(NamedElement):
 
 class Transmission(NamedElement):
     allowed_elements = ['Type','Transjoint','Actuator']
+    allowed_attributes = ['name']
 
-class Type(Element): pass
+class Type(Element): 
+    allowed_attributes = ['xmltext']
 
 class Transjoint(NamedElement):
     allowed_elements = ['Hardwareinterface']
@@ -303,7 +305,8 @@ class Transjoint(NamedElement):
 
 class Hardwareinterface(Element): pass
 
-class Mechanicalreduction(Element):pass
+class Mechanicalreduction(Element):
+    allowed_attributes = ['xmltext']
 
 class Actuator(NamedElement):
     allowed_elements = ['Mechanicalreduction','Hardwareinterface']
