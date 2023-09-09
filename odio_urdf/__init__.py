@@ -261,13 +261,13 @@ class Xacroproperty(Element):
 
 class Group(Element):
     """ A group of <Robot> top level elements that will be appended to the Robot() that owns this group"""
-    allowed_elements = ['Joint','Link','Material','Transmission','Gazebo']
+    allowed_elements = ['Joint','Link','Material','Transmission','Gazebo', 'Sensor']
     allowed_attributes = ['name']
 
 
 class Robot(NamedElement):
     """ Robot is the top level element in a URDF """
-    allowed_elements = ['Joint','Link','Material','Transmission','Gazebo']
+    allowed_elements = ['Joint','Link','Material','Transmission','Gazebo', 'Sensor']
 
     def urdf(self, depth=0):
         return '<?xml version="1.0"?>\n'+super(Robot,self).urdf(0)
@@ -310,6 +310,7 @@ class Actuator(NamedElement):
 
 class Parent(Element):
     required_attributes = ['link']
+    allowed_attributes = ['joint']
 
     def __init__(self, *args, **kwargs):
         """ If Link type passed in, extract name string """
@@ -375,8 +376,18 @@ class Texture(Element):
     allowed_attributes = ['filename']
 
 class Collision(Element):
-    allowed_elements = ['Origin','Geometry','Material']
+    allowed_elements = ['Origin','Geometry','Material', 'Surface']
     allowed_attributes = ['name']
+
+class Surface(Element):   
+    allowed_elements = ['Bounce']
+
+class Bounce(Element): 
+    allowed_elements = ['Restitution_coefficient', 'Threshold']
+
+class Restitution_coefficient(Element): pass
+
+class Threshold(Element): pass
 
 class Self_collision_checking(Element):
     allowed_elements = ['Origin','Geometry']
@@ -423,14 +434,35 @@ class Inertial(Element):
     allowed_elements = ['Origin','Mass','Inertia']
 
 class Gazebo(Element):
-    allowed_elements = ['Material','Gravity','Dampingfactor','Maxvel','Mindepth','Mu1','Mu2',
-        'Fdir1','Kp','Kd','Selfcollide','Maxcontacts','Laserretro','Plugin']
+    allowed_elements = ['Collision', 'Material','Gravity','Dampingfactor','Maxvel','Mindepth','Mu1','Mu2',
+        'Fdir1','Kp','Kd','Selfcollide','Maxcontacts','Laserretro',
+        'Plugin','Preservefixedjoint','Disablefixedjointlumping', 'Sensor', 'Implicitspringdamper', 'Pose']
     allowed_attributes = ['reference','xmltext']
 
 class Plugin(Element):
-    allowed_elements = ['Robotnamespace']
+    allowed_elements = ['Robotnamespace', 'Yarpconfigurationfile', 'Initialconfiguration','Robotnamefromconfigfile',
+                    'Yarprobotinterfaceconfigurationfile']
     allowed_attributes = ['name','filename']
 
+class Sensor(Element): 
+    allowed_elements = ['Always_on', 'Update_rate', 'Force_torque', 'Pose', 'Plugin', 'Parent', 'Origin']
+    allowed_attributes = ['name', 'type']
+
+class Force_torque(Element): 
+    allowed_elements = ['Measure_direction', 'Frame']
+
+class Measure_direction(Element): pass
+class Frame(Element): pass
+
+class Always_on(Element): pass
+class Update_rate(Element): pass
+class Pose(Element): pass
+
+class Yarprobotinterfaceconfigurationfile(Element): pass
+class Implicitspringdamper(Element): pass
+class Robotnamefromconfigfile(Element): pass
+class Initialconfiguration(Element): pass
+class Yarpconfigurationfile(Element): pass
 class Robotnamespace(Element): pass
 class Gravity(Element): pass
 class Laserretro(Element): pass
@@ -444,6 +476,10 @@ class Dampingfactor(Element): pass
 class Maxvel(Element): pass
 class Mindepth(Element): pass
 class Mu1(Element): pass
+# add new classes -- which will be ignored too
+class Preservefixedjoint(Element): pass
+class Disablefixedjointlumping(Element): pass
+
 
 class Contact(Element):
     """Bullet3 element."""
