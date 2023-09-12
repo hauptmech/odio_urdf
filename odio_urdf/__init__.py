@@ -241,7 +241,9 @@ class Element(list):
                 s += elt.urdf(depth+1)
             if self.xmltext != "":
                 s +=" "*(depth+1) + self.xmltext + "\n"
-            s +=" "*depth + "</" + type(self).__name__.lower() + ">\n"
+            # s +=" "*depth + "</" + type(self).__name__.lower() + ">\n"
+            s +=" "*depth + "</" + name + ">\n"
+            print(s)
         return s
 
 @six.add_metaclass(NamedElementMeta)
@@ -303,7 +305,9 @@ class Transjoint(NamedElement):
     allowed_elements = ['Hardwareinterface']
     element_name = "joint"
 
-class Hardwareinterface(Element): pass
+class Hardwareinterface(NamedElement): 
+    allowed_attributes = ['xmltext']
+    element_name = "hardwareInterface"
 
 class Mechanicalreduction(Element):
     allowed_attributes = ['xmltext']
