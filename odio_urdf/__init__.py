@@ -443,6 +443,7 @@ class Inertial(Element):
 class Gazebo(Element):
     allowed_elements = ['Collision', 'Material','Gravity','Dampingfactor','Maxvel','Mindepth','Mu1','Mu2',
         'Fdir1','Kp','Kd','Selfcollide','Maxcontacts','Laserretro',
+        # 'Plugin','Preservefixedjoint','Disablefixedjointlumping', 'Sensor', 'Implicitspringdamper']
         'Plugin','Preservefixedjoint','Disablefixedjointlumping', 'Sensor', 'Implicitspringdamper', 'Pose']
     allowed_attributes = ['reference','xmltext']
 
@@ -452,8 +453,57 @@ class Plugin(Element):
     allowed_attributes = ['name','filename']
 
 class Sensor(Element): 
-    allowed_elements = ['Always_on', 'Update_rate', 'Force_torque', 'Pose', 'Plugin', 'Parent', 'Origin']
+    allowed_elements = ['Always_on', 'Update_rate', 'Force_torque', 'Pose', 'Plugin', 'Parent', 'Origin', 'Camera', 'Visualize', 'Ray']
     allowed_attributes = ['name', 'type']
+
+class Camera(Element):
+    allowed_elements = ['Horizontal_fov', 'Distortion', 'Image', 'Clip', 'Pose']
+    allowed_attributes = ['name'] 
+    pass
+
+class Ray(Element):
+    allowed_elements = ['Scan', 'Range', 'Noise']
+class Scan(Element):
+    allowed_elements = ['Horizontal']
+class Horizontal(Element): 
+    allowed_elements = ['Samples', 'Resolution', 'Min_angle', 'Max_angle']
+class Samples(Element): pass
+class Resolution(Element): pass
+class Min_angle(Element): pass
+class Max_angle(Element): pass
+
+class Range(Element):
+    allowed_elements = ['Min', 'Max', 'Resolution']
+class Min(Element): pass
+class Max(Element): pass
+class Resolution(Element): pass
+
+class Noise(Element):
+    allowed_elements = ['Type', 'Mean', 'Stddev']
+# class Type(Element): pass
+class Mean(Element): pass
+class Stddev(Element): pass
+
+class Horizontal_fov(Element): pass
+class Distortion(Element): 
+    allowed_elements = ['K1', 'K2', 'K3', 'P1', 'P2', 'Center']
+class K1(Element): pass
+class K2(Element): pass
+class K3(Element): pass
+class P1(Element): pass
+class P2(Element): pass
+class Center(Element): pass
+class Visualize(Element): pass
+
+class Image(Element):
+    allowed_elements = ['Width', 'Height', 'Format']
+class Width(Element): pass
+class Height(Element): pass
+class Format(Element): pass
+class Clip(Element):
+    allowed_elements = ['Near', 'Far']
+class Near(Element): pass
+class Far(Element): pass
 
 class Force_torque(Element): 
     allowed_elements = ['Measure_direction', 'Frame']
