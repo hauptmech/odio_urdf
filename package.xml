@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>odio_urdf</name>
-  <version>1.2.2</version>
+  <version>1.3.0</version>
   <description>The odio_urdf package</description>
   <maintainer email="hauptmech@gmail.com">Hauptmech</maintainer>
   <license>MIT</license>
