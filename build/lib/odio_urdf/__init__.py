@@ -284,7 +284,7 @@ class Element(list):
                 s += " " * (depth + 1) + self.xmltext + "\n"
             # s +=" "*depth + "</" + type(self).__name__.lower() + ">\n"
             s += " " * depth + "</" + name + ">\n"
-            # print(s)
+            print(s)
         return s
 
 
@@ -584,6 +584,7 @@ class Gazebo(Element):
         "Selfcollide",
         "Maxcontacts",
         "Laserretro",
+        # 'Plugin','Preservefixedjoint','Disablefixedjointlumping', 'Sensor', 'Implicitspringdamper']
         "Plugin",
         "Preservefixedjoint",
         "Disablefixedjointlumping",
@@ -665,6 +666,10 @@ class Min(Element):
 
 
 class Max(Element):
+    pass
+
+
+class Resolution(Element):
     pass
 
 
@@ -766,7 +771,6 @@ class Update_rate(Element):
 
 
 class Pose(Element):
-    allowed_attributes = ["frame"]
     pass
 
 
